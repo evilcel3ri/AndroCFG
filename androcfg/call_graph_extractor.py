@@ -16,6 +16,7 @@ from pygments.lexers.jvm import JavaLexer
 from androcfg.code_style import U39bStyle
 from androcfg.genom import Genom
 from androcfg.report import MdReport
+import androcfg.dekofuzzy as dekofuzzy
 
 
 def flatten(elements, flat_elements):
@@ -226,6 +227,13 @@ class CFG:
                     if d == 0:
                         for parent in neighbors(reverse_view(entire_call_graph), n):
                             try:
+                                bytecode = b''
+                                
+                                if parent.get_method().get_code():
+                                    bytecode = bytes(parent.get_method().get_code().get_raw())
+
+                                dexofuzzy_hash = dekofuzzy.hash(bytecode)
+
                                 java_code = parent.get_method().get_source()
                                 class_name = parent.get_method().get_class_name()
                                 hash = md5()
@@ -236,7 +244,8 @@ class CFG:
                                 rule_report['findings'].append({
                                     'id': h,
                                     'call_by': str(class_name)[1:-1],
-                                    'evidence_file': os.path.relpath(file_path, start=self.report_output_dir)
+                                    'evidence_file': os.path.relpath(file_path, start=self.report_output_dir),
+                                    'dexofuzzy_hash': dexofuzzy_hash
                                 })
                                 if self.output_file == "html":
                                     with open(file_path, mode='wb') as out:

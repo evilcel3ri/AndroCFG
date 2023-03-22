@@ -2,3 +2,5 @@ androguard==3.4.0a1
 Pygments==2.9.0
 graphviz==0.16
 pybars3==0.9.7
+ssdeep==3.4
+dexofuzzy==1.7.1
